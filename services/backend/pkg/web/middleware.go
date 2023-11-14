@@ -11,7 +11,7 @@ import (
 // Usage:
 //
 //	http.Handle("/path", enableCORS(yourHandler))
-func EnableCORS(next http.Handler) http.Handler {
+func EnableCORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers
 		w.Header().Set("Access-Control-Allow-Origin", "*")             // Allow any origin

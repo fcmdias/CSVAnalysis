@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func Popular(w http.ResponseWriter, r *http.Request) {
+func PopularHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
 		return
@@ -14,8 +14,9 @@ func Popular(w http.ResponseWriter, r *http.Request) {
 
 	// Get the sort order from the query string
 	sortOrder := r.URL.Query().Get("sort")
+	filter := r.URL.Query().Get("filter")
 
-	data := vehicles.FetchVehicles()
+	data := vehicles.FetchVehicles(filter)
 
 	dataPopular := vehicles.Popularity(data, sortOrder)
 

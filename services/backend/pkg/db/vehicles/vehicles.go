@@ -11,7 +11,9 @@ import (
 	"time"
 )
 
-func FetchVehicles() (vehicles []models.VehicleData) {
+func FetchVehicles(filter string) (vehicles []models.VehicleData) {
+
+	start := time.Now()
 	f, err := os.Open("Electric_Vehicle_Population_Data.csv")
 	if err != nil {
 		log.Fatal("Unable to read input file yourfile.csv", err)
@@ -52,9 +54,23 @@ func FetchVehicles() (vehicles []models.VehicleData) {
 			CensusTract:     record[16],
 		}
 
+		switch filter {
+		case "electric":
+			if vehicle.EVType != "Battery Electric Vehicle (BEV)" && vehicle.EVType != "Electric Vehicle Type" {
+				continue
+			}
+		case "hybrid":
+			if vehicle.EVType != "Plug-in Hybrid Electric Vehicle (PHEV)" {
+				continue
+			}
+		default:
+			// accept all
+		}
+
 		vehicles = append(vehicles, vehicle)
 	}
 
+	log.Println("time to read csv file", time.Since(start))
 	return vehicles
 }
 
@@ -72,15 +88,20 @@ func Popularity(vehicles []models.VehicleData, sortOrder string) []models.Vehicl
 		popularityVehicles = append(popularityVehicles, models.VehiclePopularity{vehicle.Make, vehicle.Model, total})
 	}
 
+	sort.Slice(popularityVehicles, func(i, j int) bool {
+		return popularityVehicles[i].Total > popularityVehicles[j].Total // Descending order
+	})
+	if len(popularityVehicles) > 20 {
+		popularityVehicles = popularityVehicles[:20]
+	}
+
 	// Sorting based on the sortOrder parameter
 	if sortOrder == "asc" {
 		sort.Slice(popularityVehicles, func(i, j int) bool {
 			return popularityVehicles[i].Total < popularityVehicles[j].Total // Ascending order
 		})
 	} else { // Default to descending order if no sort order is specified or if it's "desc"
-		sort.Slice(popularityVehicles, func(i, j int) bool {
-			return popularityVehicles[i].Total > popularityVehicles[j].Total // Descending order
-		})
+		// already sorted
 	}
 
 	fmt.Println("time taken", time.Since(start))

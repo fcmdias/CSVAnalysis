@@ -8,15 +8,20 @@ import {
   LinearScale, 
 }  from 'chart.js';
 import { DefaultChart } from 'solid-chartjs'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {  
   const [chartData, setChartData] = createSignal({ datasets: [] });
+  const [selectedFilter, setSelectedFilter] = createSignal('all');
+  const [selectedSort, setSelectedSort] = createSignal('desc');
 
 
-  const fetchData = async (sortOrder = 'desc') => {
+
+
+  const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/popular?sort=${sortOrder}`);
+      const response = await fetch(`http://localhost:8080/popular?sort=${selectedSort()}&filter=${selectedFilter()}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -44,14 +49,29 @@ function App() {
     Chart.register(LineController, CategoryScale, PointElement, LineElement, LinearScale)
   });
 
-  const sortAscending = () => fetchData('asc');
-  const sortDescending = () => fetchData('desc');
+
+  const applyFilter = (filter) => () => {
+    setSelectedFilter(filter);
+    fetchData()
+  };
+  const applySortOrder = (sortOrder) => () => {
+    setSelectedSort(sortOrder);
+    fetchData()
+  };
 
   return (
-    <div>
-      <h1>Electric Cars by Make and Model</h1>
-      <button onClick={sortAscending}>Sort Ascending</button>
-      <button onClick={sortDescending}>Sort Descending</button>
+    <div className="container mt-4">
+      <h1>Vehicle Data</h1>
+      <p>This dataset shows the Battery Electric Vehicles (BEVs) and Plug-in Hybrid Electric Vehicles (PHEVs) that are currently registered through Washington State Department of Licensing (DOL).</p>
+      <div className="btn-group mb-3">
+        <button className={`btn ${selectedFilter() === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('all')}>All</button>
+        <button className={`btn ${selectedFilter() === 'electric' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('electric')}>Electric</button>
+        <button className={`btn ${selectedFilter() === 'hybrid' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('hybrid')}>Hybrid</button>
+      </div>
+      <div className="btn-group mb-3">
+        <button className={`btn ${selectedSort() === 'asc' ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={applySortOrder('asc')}>Sort Ascending</button>
+        <button className={`btn ${selectedSort() === 'desc' ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={applySortOrder('desc')}>Sort Descending</button>
+      </div>
       <DefaultChart type="bar" data={chartData()} />
     </div>
   );
