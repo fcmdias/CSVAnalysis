@@ -17,31 +17,31 @@ func PopularHandler(w http.ResponseWriter, r *http.Request) {
 	filter := r.URL.Query().Get("filter")
 
 	if !isValidSortOrder(sortOrder) {
-        http.Error(w, "Invalid sort order", http.StatusBadRequest)
-        return
-    }
+		http.Error(w, "Invalid sort order", http.StatusBadRequest)
+		return
+	}
 
-    if !isValidFilter(filter) {
-        http.Error(w, "Invalid filter", http.StatusBadRequest)
-        return
-    }
+	if !isValidFilter(filter) {
+		http.Error(w, "Invalid filter", http.StatusBadRequest)
+		return
+	}
 
-    data, err := vehicles.FetchVehicles(filter)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	data, err := vehicles.FetchVehicles(filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-    dataPopular, err := vehicles.Popularity(data, sortOrder)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	dataPopular, err := vehicles.Popularity(data, sortOrder)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(dataPopular); err != nil {
-        http.Error(w, "Failed to encode data", http.StatusInternalServerError)
-    }
+		http.Error(w, "Failed to encode data", http.StatusInternalServerError)
+	}
 }
 
 func ByYearHandler(w http.ResponseWriter, r *http.Request) {
@@ -54,21 +54,21 @@ func ByYearHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !isValidFilter(filter) {
 		http.Error(w, "Invalid filter", http.StatusBadRequest)
-        return
+		return
 	}
 
 	data, err := vehicles.FetchVehicles(filter)
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	dataByYear := vehicles.ByYear(data)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(dataByYear); err != nil {
-        http.Error(w, "Failed to encode data", http.StatusInternalServerError)
-    }
+		http.Error(w, "Failed to encode data", http.StatusInternalServerError)
+	}
 }
 
 // =========================================================================
@@ -81,7 +81,7 @@ func isValidSortOrder(sortOrder string) bool {
 }
 
 func isValidFilter(filter string) bool {
-	if filter == "all" || filter == "hybrid" "" filter == "electric" {
+	if filter == "all" || filter == "hybrid" || filter == "electric" {
 		return true
 	}
 	return false
