@@ -64,7 +64,7 @@ function ByMakeModel() {
       <p>This dataset shows the Battery Electric Vehicles (BEVs) and Plug-in Hybrid Electric Vehicles (PHEVs) that are currently registered through Washington State Department of Licensing (DOL).</p>
       
       <div className="btn-group mb-3">
-        <button className={`btn ${selectedFilter() === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('all')}>All</button>
+        <button className={`btn ${selectedFilter() === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('all')}>Electrical and Hybrid</button>
         <button className={`btn ${selectedFilter() === 'electric' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('electric')}>Electric</button>
         <button className={`btn ${selectedFilter() === 'hybrid' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('hybrid')}>Hybrid</button>
       </div>
