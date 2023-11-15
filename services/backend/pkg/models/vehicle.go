@@ -26,3 +26,8 @@ type VehiclePopularity struct {
 	Model string `json:"model"`
 	Total int    `json:"total"`
 }
+
+type VehicleByYear struct {
+	Total int `json:"total"`
+	Year  int `json:"year"`
+}

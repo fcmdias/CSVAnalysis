@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -80,20 +81,23 @@ func Popularity(vehicles []models.VehicleData, sortOrder string) []models.Vehicl
 	start := time.Now()
 	popularity := make(map[models.VehiclePopularity]int)
 	for _, vehicle := range vehicles {
-		popularity[models.VehiclePopularity{vehicle.Make, vehicle.Model, 0}]++
+		popularity[models.VehiclePopularity{
+			Make:  vehicle.Make,
+			Model: vehicle.Model,
+			Total: 0,
+		}]++
 	}
 
 	var popularityVehicles []models.VehiclePopularity
 	for vehicle, total := range popularity {
-		popularityVehicles = append(popularityVehicles, models.VehiclePopularity{vehicle.Make, vehicle.Model, total})
+		popularityVehicles = append(popularityVehicles, models.VehiclePopularity{
+			Make:  vehicle.Make,
+			Model: vehicle.Model,
+			Total: total,
+		})
 	}
 
-	sort.Slice(popularityVehicles, func(i, j int) bool {
-		return popularityVehicles[i].Total > popularityVehicles[j].Total // Descending order
-	})
-	if len(popularityVehicles) > 20 {
-		popularityVehicles = popularityVehicles[:20]
-	}
+	popularityVehicles = top20(popularityVehicles)
 
 	// Sorting based on the sortOrder parameter
 	if sortOrder == "asc" {
@@ -106,4 +110,54 @@ func Popularity(vehicles []models.VehicleData, sortOrder string) []models.Vehicl
 
 	fmt.Println("time taken", time.Since(start))
 	return popularityVehicles
+}
+
+func top20(data []models.VehiclePopularity) []models.VehiclePopularity {
+
+	if len(data) <= 20 {
+		return data
+	}
+
+	sort.Slice(data, func(i, j int) bool {
+		return data[i].Total > data[j].Total // Descending order
+	})
+
+	return data[:20]
+
+}
+
+func ByYear(data []models.VehicleData) []models.VehicleByYear {
+
+	thisYear := time.Now().Year()
+
+	mapByYear := make(map[models.VehicleByYear]int)
+	for _, vehicle := range data {
+
+		year, err := strconv.Atoi(vehicle.ModelYear)
+		if err != nil {
+			continue
+		}
+		if year < thisYear-10 || year > thisYear {
+			continue
+		}
+		mapByYear[models.VehicleByYear{
+			Year:  year,
+			Total: 0,
+		}]++
+	}
+
+	var dataByYear []models.VehicleByYear
+
+	for vehicle, total := range mapByYear {
+		dataByYear = append(dataByYear, models.VehicleByYear{
+			Total: total,
+			Year:  vehicle.Year,
+		})
+	}
+
+	sort.Slice(dataByYear, func(i, j int) bool {
+		return dataByYear[i].Year < dataByYear[j].Year
+	})
+
+	return dataByYear
 }
