@@ -29,7 +29,7 @@ function ByYear() {
       const data = {
         labels: electricCars.map(car => `${car.year}`),
         datasets: [{
-          label: 'Electric Cars',
+          label: 'Electric Cars By Year',
           data: electricCars.map(car => car.total),
           backgroundColor: 'rgba(0, 123, 255, 0.5)',
           borderColor: 'rgba(0, 123, 255, 1)',
@@ -57,7 +57,6 @@ function ByYear() {
   return (
     <div className="container mt-4">
       <h1>By Year</h1>
-      <p>This dataset shows the Battery Electric Vehicles (BEVs) and Plug-in Hybrid Electric Vehicles (PHEVs) that are currently registered through Washington State Department of Licensing (DOL).</p>
       <div className="btn-group mb-3">
         <button className={`btn ${selectedFilter() === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('all')}>All</button>
         <button className={`btn ${selectedFilter() === 'electric' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('electric')}>Electric</button>
