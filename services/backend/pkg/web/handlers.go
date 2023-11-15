@@ -16,12 +16,32 @@ func PopularHandler(w http.ResponseWriter, r *http.Request) {
 	sortOrder := r.URL.Query().Get("sort")
 	filter := r.URL.Query().Get("filter")
 
-	data := vehicles.FetchVehicles(filter)
+	if !isValidSortOrder(sortOrder) {
+        http.Error(w, "Invalid sort order", http.StatusBadRequest)
+        return
+    }
 
-	dataPopular := vehicles.Popularity(data, sortOrder)
+    if !isValidFilter(filter) {
+        http.Error(w, "Invalid filter", http.StatusBadRequest)
+        return
+    }
+
+    data, err := vehicles.FetchVehicles(filter)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    dataPopular, err := vehicles.Popularity(data, sortOrder)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(dataPopular)
+	if err := json.NewEncoder(w).Encode(dataPopular); err != nil {
+        http.Error(w, "Failed to encode data", http.StatusInternalServerError)
+    }
 }
 
 func ByYearHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,13 +50,39 @@ func ByYearHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the sort order and filter from the query string
 	filter := r.URL.Query().Get("filter")
 
-	data := vehicles.FetchVehicles(filter)
+	if !isValidFilter(filter) {
+		http.Error(w, "Invalid filter", http.StatusBadRequest)
+        return
+	}
+
+	data, err := vehicles.FetchVehicles(filter)
+	if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
 	dataByYear := vehicles.ByYear(data)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(dataByYear)
+	if err := json.NewEncoder(w).Encode(dataByYear); err != nil {
+        http.Error(w, "Failed to encode data", http.StatusInternalServerError)
+    }
+}
+
+// =========================================================================
+// Helper functions to validate sortOrder and filter
+func isValidSortOrder(sortOrder string) bool {
+	if sortOrder == "asc" || sortOrder == "desc" {
+		return true
+	}
+	return false
+}
+
+func isValidFilter(filter string) bool {
+	if filter == "all" || filter == "hybrid" "" filter == "electric" {
+		return true
+	}
+	return false
 }

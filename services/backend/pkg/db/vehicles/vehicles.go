@@ -2,7 +2,6 @@ package vehicles
 
 import (
 	"encoding/csv"
-	"fmt"
 	"github/com/fcmdias/CSVAnalysis/services/backend/pkg/models"
 	"io"
 	"log"
@@ -12,12 +11,13 @@ import (
 	"time"
 )
 
-func FetchVehicles(filter string) (vehicles []models.VehicleData) {
-
+// FetchVehicles reads and filters vehicle data from a CSV file.
+func FetchVehicles(filter string) (vehicles []models.VehicleData, err error) {
 	start := time.Now()
+
 	f, err := os.Open("Electric_Vehicle_Population_Data.csv")
 	if err != nil {
-		log.Fatal("Unable to read input file yourfile.csv", err)
+		return nil, err
 	}
 	defer f.Close()
 
@@ -32,53 +32,61 @@ func FetchVehicles(filter string) (vehicles []models.VehicleData) {
 			if err == io.EOF {
 				break
 			}
-			log.Fatal("Read() error:", err)
+			return nil, err
 		}
 
-		vehicle := models.VehicleData{
-			VIN:             record[0],
-			County:          record[1],
-			City:            record[2],
-			State:           record[3],
-			PostalCode:      record[4],
-			ModelYear:       record[5],
-			Make:            record[6],
-			Model:           record[7],
-			EVType:          record[8],
-			CAFVEligibility: record[9],
-			ElectricRange:   record[10],
-			BaseMSRP:        record[11],
-			LegislativeDist: record[12],
-			DOLVehicleID:    record[13],
-			VehicleLocation: record[14],
-			ElectricUtility: record[15],
-			CensusTract:     record[16],
-		}
+		vehicle := parseRecordToVehicle(record)
 
-		switch filter {
-		case "electric":
-			if vehicle.EVType != "Battery Electric Vehicle (BEV)" && vehicle.EVType != "Electric Vehicle Type" {
-				continue
-			}
-		case "hybrid":
-			if vehicle.EVType != "Plug-in Hybrid Electric Vehicle (PHEV)" {
-				continue
-			}
-		default:
-			// accept all
+		if shouldIncludeVehicle(vehicle, filter) {
+			vehicles = append(vehicles, vehicle)
 		}
-
-		vehicles = append(vehicles, vehicle)
 	}
 
-	log.Println("time to read csv file", time.Since(start))
-	return vehicles
+	log.Printf("Time to read and process CSV file: %v\n", time.Since(start))
+	return vehicles, nil
+}
+
+// parseRecordToVehicle converts a CSV record to a VehicleData object.
+func parseRecordToVehicle(record []string) models.VehicleData {
+	return models.VehicleData{
+		VIN:             record[0],
+		County:          record[1],
+		City:            record[2],
+		State:           record[3],
+		PostalCode:      record[4],
+		ModelYear:       record[5],
+		Make:            record[6],
+		Model:           record[7],
+		EVType:          record[8],
+		CAFVEligibility: record[9],
+		ElectricRange:   record[10],
+		BaseMSRP:        record[11],
+		LegislativeDist: record[12],
+		DOLVehicleID:    record[13],
+		VehicleLocation: record[14],
+		ElectricUtility: record[15],
+		CensusTract:     record[16],
+	}
+}
+
+// shouldIncludeVehicle checks if a vehicle matches the given filter.
+func shouldIncludeVehicle(vehicle models.VehicleData, filter string) bool {
+	switch filter {
+	case "electric":
+		return vehicle.EVType == "Battery Electric Vehicle (BEV)" || vehicle.EVType == "Electric Vehicle Type"
+	case "hybrid":
+		return vehicle.EVType == "Plug-in Hybrid Electric Vehicle (PHEV)"
+	case "all":
+		return true
+	default:
+		return false
+	}
 }
 
 // Popularity computes the popularity and sorts the slice based on the sort parameter.
-func Popularity(vehicles []models.VehicleData, sortOrder string) []models.VehiclePopularity {
-
+func Popularity(vehicles []models.VehicleData, sortOrder string) ([]models.VehiclePopularity, error) {
 	start := time.Now()
+
 	popularity := make(map[models.VehiclePopularity]int)
 	for _, vehicle := range vehicles {
 		popularity[models.VehiclePopularity{
@@ -97,22 +105,27 @@ func Popularity(vehicles []models.VehicleData, sortOrder string) []models.Vehicl
 		})
 	}
 
-	popularityVehicles = top20(popularityVehicles)
+	popularityVehicles = topVehiclePopularity20(popularityVehicles)
+	popularityVehicles = sortByTotalVehiclePopularity(popularityVehicles, sortOrder)
 
+	log.Printf("Time taken to compute popularity: %v\n", time.Since(start))
+	return popularityVehicles, nil
+}
+
+func sortByTotalVehiclePopularity(data []models.VehiclePopularity, sortOrder string) []models.VehiclePopularity {
 	// Sorting based on the sortOrder parameter
 	if sortOrder == "asc" {
-		sort.Slice(popularityVehicles, func(i, j int) bool {
-			return popularityVehicles[i].Total < popularityVehicles[j].Total // Ascending order
+		sort.Slice(data, func(i, j int) bool {
+			return data[i].Total < data[j].Total // Ascending order
 		})
 	} else { // Default to descending order if no sort order is specified or if it's "desc"
 		// already sorted
 	}
 
-	fmt.Println("time taken", time.Since(start))
-	return popularityVehicles
+	return data
 }
 
-func top20(data []models.VehiclePopularity) []models.VehiclePopularity {
+func topVehiclePopularity20(data []models.VehiclePopularity) []models.VehiclePopularity {
 
 	if len(data) <= 20 {
 		return data
