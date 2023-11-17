@@ -9,6 +9,8 @@ The frontend is built using Solid.js, providing an interactive and responsive us
 Before you begin, ensure you have the following installed:
 - [Node.js](https://nodejs.org/) (with npm or yarn)
 - [Go](https://golang.org/dl/) (version 1.21 or later)
+- An active OpenAI API key
+
 
 ## Getting Started
 
@@ -23,20 +25,31 @@ git clone https://github.com/fcmdias/CSVAnalysis.git
 cd CSVAnalysis
 ```
 
-### 2. Start backend service 
+### 2. Environment Variables
+```bash
+export AIToken='your_openai_api_key'
+```
+
+### 3. Start data backend service 
 ```bash
 cd services/backend/cmd/data
 go run main.go
 ```
 
-### 3. Start frontend service 
+### 4. Start AI backend service 
+```bash
+cd services/backend/cmd/ai
+go run main.go
+```
+
+### 5. Start frontend service 
 ```bash
 cd services/frontend
 npm install 
 npm run dev
 ```
 
-### 4. Accessing the Application
+### 6. Accessing the Application
 
 After starting both the frontend and backend servers, you can access the application at http://localhost:3000.
 

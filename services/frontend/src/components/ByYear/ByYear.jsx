@@ -91,6 +91,7 @@ function ByYear() {
       </div>
       <DefaultChart type="bar" data={chartData()} />
       
+      <div innerHTML={selectedAIData()} />
       <button 
         className={`btn ${isLoading() ? 'btn-secondary' : 'btn-primary'}`} 
         onClick={askAI}
@@ -103,7 +104,6 @@ function ByYear() {
           <span className="sr-only">Loading...</span>
         </div>
       }
-      <p>{selectedAIData()}</p>
     </div>
   );
 }
