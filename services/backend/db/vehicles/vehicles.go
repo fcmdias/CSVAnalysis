@@ -2,7 +2,7 @@ package vehicles
 
 import (
 	"encoding/csv"
-	"github/com/fcmdias/CSVAnalysis/services/backend/pkg/models"
+	"github/com/fcmdias/CSVAnalysis/services/backend/models"
 	"io"
 	"log"
 	"os"

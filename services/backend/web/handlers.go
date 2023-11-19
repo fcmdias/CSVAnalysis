@@ -2,7 +2,7 @@ package web
 
 import (
 	"encoding/json"
-	"github/com/fcmdias/CSVAnalysis/services/backend/pkg/db/vehicles"
+	"github/com/fcmdias/CSVAnalysis/services/backend/db/vehicles"
 	"net/http"
 )
 
