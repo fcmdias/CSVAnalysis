@@ -142,18 +142,13 @@ func topVehiclePopularity20(data []models.VehiclePopularity) []models.VehiclePop
 func ByYear(data []models.VehicleData) []models.VehicleByYear {
 
 	thisYear := time.Now().Year()
+	res := make([]models.VehicleByYear, 10)
 
-	mapByYear := make(map[models.VehicleByYear]int)
-
-	for year := thisYear; year > thisYear-10; year-- {
-		mapByYear[models.VehicleByYear{
-			Year:  year,
-			Total: 0,
-		}] = 0
+	for i := 0; i < 10; i++ {
+		res[i].Year = thisYear - 9 + i
 	}
 
 	for _, vehicle := range data {
-
 		year, err := strconv.Atoi(vehicle.ModelYear)
 		if err != nil {
 			continue
@@ -161,24 +156,8 @@ func ByYear(data []models.VehicleData) []models.VehicleByYear {
 		if year < thisYear-9 || year > thisYear {
 			continue
 		}
-		mapByYear[models.VehicleByYear{
-			Year:  year,
-			Total: 0,
-		}]++
+		res[9+year-thisYear].Total++
 	}
 
-	var dataByYear []models.VehicleByYear
-
-	for vehicle, total := range mapByYear {
-		dataByYear = append(dataByYear, models.VehicleByYear{
-			Total: total,
-			Year:  vehicle.Year,
-		})
-	}
-
-	sort.Slice(dataByYear, func(i, j int) bool {
-		return dataByYear[i].Year < dataByYear[j].Year
-	})
-
-	return dataByYear
+	return res
 }
