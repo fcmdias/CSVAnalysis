@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github/com/fcmdias/CSVAnalysis/services/backend/web"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,15 +21,16 @@ func main() {
 
 	wrappedMux := web.PanicRecoveryMiddleware(router)
 
+	port := "8080"
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + port,
 		Handler: wrappedMux,
 	}
 
 	go func() {
-		log.Println("Starting server on :8080")
+		slog.Info("Starting server", "port", port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("ListenAndServe error: %v", err)
+			slog.Error("ListenAndServe", "error", err)
 		}
 	}()
 
@@ -37,13 +38,13 @@ func main() {
 	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
 
 	<-stopChan
-	log.Println("Shutting down server...")
+	slog.Info("Shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("Server Shutdown Failed:%+v", err)
+		slog.Error("Server Shutdown Failed", "error", err)
 	}
-	log.Println("Server gracefully stopped")
+	slog.Info("Server gracefully stopped")
 }

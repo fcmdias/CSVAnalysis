@@ -36,7 +36,7 @@ func PanicRecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println("Recovered from panic:", err)
+				slog.Info("Recovered from panic", "error", err)
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
 		}()
@@ -50,12 +50,12 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log before handling the request
 		start := time.Now()
-		slog.Info("Stated", r.Method, r.URL.Path)
+		slog.Info("stated", "method", r.Method, "path", r.URL.Path)
 
 		customWriter := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
 		next.ServeHTTP(customWriter, r)
 
 		duration := time.Since(start)
-		slog.Info("Completed", "path", fmt.Sprint(r.URL.Path), "duration", fmt.Sprint(duration), "StatusCode", fmt.Sprint(customWriter.statusCode))
+		slog.Info("completed", "path", fmt.Sprint(r.URL.Path), "duration", fmt.Sprint(duration), "status code", fmt.Sprint(customWriter.statusCode))
 	})
 }

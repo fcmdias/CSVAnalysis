@@ -32,7 +32,7 @@ func PopularHandler(w http.ResponseWriter, r *http.Request) {
 	filter := r.URL.Query().Get("filter")
 
 	if !isValidSortOrder(sortOrder) {
-		slog.Info("Error invalid filter", "filter", filter)
+		slog.Error("Error invalid filter", "filter", filter)
 		errorResponse := ErrorResponse{Error: "invalid filter"}
 		sendResponse(w, http.StatusInternalServerError, nil, &errorResponse)
 		return
@@ -81,7 +81,7 @@ func ByYearHandler(w http.ResponseWriter, r *http.Request) {
 	filter := r.URL.Query().Get("filter")
 
 	if !isValidFilter(filter) {
-		slog.Info("Error invalid filter", "filter", filter)
+		slog.Error("Error invalid filter", "filter", filter)
 		errorResponse := ErrorResponse{Error: "invalid filter"}
 		sendResponse(w, http.StatusInternalServerError, nil, &errorResponse)
 		return
@@ -89,7 +89,7 @@ func ByYearHandler(w http.ResponseWriter, r *http.Request) {
 
 	data, err := vehicles.FetchVehicles(filter)
 	if err != nil {
-		slog.Info("Error fetching vehicles", "error", err.Error())
+		slog.Error("Error fetching vehicles", "error", err.Error())
 		errorResponse := ErrorResponse{Error: "Internal Server Error"}
 		sendResponse(w, http.StatusInternalServerError, nil, &errorResponse)
 		return
