@@ -9,12 +9,15 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
 	router := http.NewServeMux()
-	router.Handle("/popular", web.EnableCORSMiddleware(http.HandlerFunc(web.PopularHandler)))
-	router.Handle("/byyear", web.EnableCORSMiddleware(http.HandlerFunc(web.ByYearHandler)))
+	router.Handle("/popular", web.LoggingMiddleware(web.EnableCORSMiddleware(http.HandlerFunc(web.PopularHandler))))
+	router.Handle("/byyear", web.LoggingMiddleware(web.EnableCORSMiddleware(http.HandlerFunc(web.ByYearHandler))))
+	router.HandleFunc("/swagger/", httpSwagger.WrapHandler)
 
 	wrappedMux := web.PanicRecoveryMiddleware(router)
 

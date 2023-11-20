@@ -2,7 +2,9 @@ package web
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
+	"time"
 )
 
 // enableCORS wraps an http.Handler with CORS support. By applying this middleware,
@@ -40,5 +42,20 @@ func PanicRecoveryMiddleware(next http.Handler) http.Handler {
 		}()
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+// LoggingMiddleware wraps the provided HTTP handler with logging functionality.
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Log before handling the request
+		start := time.Now()
+		slog.Info("Stated", r.Method, r.URL.Path)
+
+		customWriter := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+		next.ServeHTTP(customWriter, r)
+
+		duration := time.Since(start)
+		slog.Info("Completed", "path", fmt.Sprint(r.URL.Path), "duration", fmt.Sprint(duration), "StatusCode", fmt.Sprint(customWriter.statusCode))
 	})
 }

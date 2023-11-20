@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"github/com/fcmdias/CSVAnalysis/services/backend/models"
 	"io"
-	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -13,8 +12,6 @@ import (
 
 // FetchVehicles reads and filters vehicle data from a CSV file.
 func FetchVehicles(filter string) (vehicles []models.VehicleData, err error) {
-	start := time.Now()
-
 	f, err := os.Open("Electric_Vehicle_Population_Data.csv")
 	if err != nil {
 		return nil, err
@@ -42,7 +39,6 @@ func FetchVehicles(filter string) (vehicles []models.VehicleData, err error) {
 		}
 	}
 
-	log.Printf("Time to read and process CSV file: %v\n", time.Since(start))
 	return vehicles, nil
 }
 
@@ -85,8 +81,6 @@ func shouldIncludeVehicle(vehicle models.VehicleData, filter string) bool {
 
 // Popularity computes the popularity and sorts the slice based on the sort parameter.
 func Popularity(vehicles []models.VehicleData, sortOrder string) ([]models.VehiclePopularity, error) {
-	start := time.Now()
-
 	popularity := make(map[models.VehiclePopularity]int)
 	for _, vehicle := range vehicles {
 		popularity[models.VehiclePopularity{
@@ -108,7 +102,6 @@ func Popularity(vehicles []models.VehicleData, sortOrder string) ([]models.Vehic
 	popularityVehicles = topVehiclePopularity20(popularityVehicles)
 	popularityVehicles = sortByTotalVehiclePopularity(popularityVehicles, sortOrder)
 
-	log.Printf("Time taken to compute popularity: %v\n", time.Since(start))
 	return popularityVehicles, nil
 }
 
