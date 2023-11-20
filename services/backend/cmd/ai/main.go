@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github/com/fcmdias/CSVAnalysis/services/backend/pkg/web"
+	"github/com/fcmdias/CSVAnalysis/services/backend/web"
 	"io/ioutil"
 	"log"
 	"net/http"

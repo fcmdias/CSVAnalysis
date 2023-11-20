@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -23,6 +24,20 @@ func EnableCORSMiddleware(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// PanicRecoveryMiddleware is a middleware that recovers from panics and writes a generic error response.
+func PanicRecoveryMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println("Recovered from panic:", err)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+		}()
 
 		next.ServeHTTP(w, r)
 	})

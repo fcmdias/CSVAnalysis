@@ -16,9 +16,11 @@ func main() {
 	router.Handle("/popular", web.EnableCORSMiddleware(http.HandlerFunc(web.PopularHandler)))
 	router.Handle("/byyear", web.EnableCORSMiddleware(http.HandlerFunc(web.ByYearHandler)))
 
+	wrappedMux := web.PanicRecoveryMiddleware(router)
+
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: router,
+		Handler: wrappedMux,
 	}
 
 	go func() {

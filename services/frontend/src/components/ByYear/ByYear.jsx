@@ -84,6 +84,7 @@ function ByYear() {
   return (
     <div className="container mt-4">
       <h1>Cars Registered Through (DOL) By Year</h1>
+      <p>The graph shows the total count of electric and hybrid cars registered per year in the last 10 years.</p>
       <div className="btn-group mb-3">
         <button className={`btn ${selectedFilter() === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('all')}>Electric and Hybrid</button>
         <button className={`btn ${selectedFilter() === 'electric' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={applyFilter('electric')}>Electric</button>

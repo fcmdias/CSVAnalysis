@@ -144,13 +144,21 @@ func ByYear(data []models.VehicleData) []models.VehicleByYear {
 	thisYear := time.Now().Year()
 
 	mapByYear := make(map[models.VehicleByYear]int)
+
+	for year := thisYear; year > thisYear-10; year-- {
+		mapByYear[models.VehicleByYear{
+			Year:  year,
+			Total: 0,
+		}] = 0
+	}
+
 	for _, vehicle := range data {
 
 		year, err := strconv.Atoi(vehicle.ModelYear)
 		if err != nil {
 			continue
 		}
-		if year < thisYear-10 || year > thisYear {
+		if year < thisYear-9 || year > thisYear {
 			continue
 		}
 		mapByYear[models.VehicleByYear{
